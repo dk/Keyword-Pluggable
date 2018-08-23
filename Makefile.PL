@@ -17,6 +17,7 @@ WriteMakefile(
 	AUTHOR	          => q{Dmitry Karasik <dmitry@karasik.eu.org>},
 	VERSION_FROM	  => 'lib/Keyword/Pluggable.pm',
 	MIN_PERL_VERSION  => '5.14.0',
+	LICENSE           => 'artistic_2',
 	PREREQ_PM         => {
 		'Pod::Markdown' => 3.101,
 	},
