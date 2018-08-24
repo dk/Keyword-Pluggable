@@ -9,16 +9,16 @@ Keyword::Pluggable - define new keywords in pure Perl
     use Keyword::Pluggable;
     
     sub import {
-        # create keyword 'provided', expand it to 'if' at parse time
-        Keyword::Pluggable::define 'provided', sub {
-            my ($ref) = @_;
-            substr($$ref, 0, 0) = 'if';  # inject 'if' at beginning of parse buffer
-        };
+            # create keyword 'provided', expand it to 'if' at parse time
+            Keyword::Pluggable::define 'provided', sub {
+                    my ($ref) = @_;
+                    substr($$ref, 0, 0) = 'if';  # inject 'if' at beginning of parse buffer
+            };
     }
     
     sub unimport {
-        # lexically disable keyword again
-        Keyword::Pluggable::undefine 'provided';
+            # lexically disable keyword again
+            Keyword::Pluggable::undefine 'provided';
     }
 
     'ok'
@@ -67,14 +67,14 @@ only happens afterwards. This means that e.g. the code in the ["SYNOPSIS"](#syno
 actually does this:
 
     provided ($foo > 2) {
-      ...
+          ...
     }
 
     # expands to
 
     ; if
     ($foo > 2) {
-      ...
+          ...
     }
 
 The `;` represents a no-op statement, the `if` was injected by the Perl code,

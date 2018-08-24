@@ -8,27 +8,27 @@ use Carp qw(croak);
 
 use XSLoader;
 BEGIN {
-    our $VERSION = '1.00';
-    XSLoader::load __PACKAGE__, $VERSION;
+	our $VERSION = '1.00';
+	XSLoader::load __PACKAGE__, $VERSION;
 }
 
 sub define {
-    my ($kw, $sub, $expression) = @_;
-    $kw =~ /^\p{XIDS}\p{XIDC}*\z/ or croak "'$kw' doesn't look like an identifier";
-    ref($sub) eq 'CODE' or croak "'$sub' doesn't look like a coderef";
+	my ($kw, $sub, $expression) = @_;
+	$kw =~ /^\p{XIDS}\p{XIDC}*\z/ or croak "'$kw' doesn't look like an identifier";
+	ref($sub) eq 'CODE' or croak "'$sub' doesn't look like a coderef";
 
-    my %keywords = %{$^H{+HINTK_KEYWORDS} // {}};
-    $keywords{$kw} = [ $sub, $expression ? 1 : 0 ];
-    $^H{+HINTK_KEYWORDS} = \%keywords;
+	my %keywords = %{$^H{+HINTK_KEYWORDS} // {}};
+	$keywords{$kw} = [ $sub, $expression ? 1 : 0 ];
+	$^H{+HINTK_KEYWORDS} = \%keywords;
 }
 
 sub undefine {
-    my ($kw) = @_;
-    $kw =~ /^\p{XIDS}\p{XIDC}*\z/ or croak "'$kw' doesn't look like an identifier";
+	my ($kw) = @_;
+	$kw =~ /^\p{XIDS}\p{XIDC}*\z/ or croak "'$kw' doesn't look like an identifier";
 
-    my %keywords = %{$^H{+HINTK_KEYWORDS} // {}};
-    delete $keywords{$kw};
-    $^H{+HINTK_KEYWORDS} = \%keywords;
+	my %keywords = %{$^H{+HINTK_KEYWORDS} // {}};
+	delete $keywords{$kw};
+	$^H{+HINTK_KEYWORDS} = \%keywords;
 }
 
 'ok'
@@ -50,16 +50,16 @@ Keyword::Pluggable - define new keywords in pure Perl
  use Keyword::Pluggable;
  
  sub import {
-     # create keyword 'provided', expand it to 'if' at parse time
-     Keyword::Pluggable::define 'provided', sub {
-         my ($ref) = @_;
-         substr($$ref, 0, 0) = 'if';  # inject 'if' at beginning of parse buffer
-     };
+	 # create keyword 'provided', expand it to 'if' at parse time
+	 Keyword::Pluggable::define 'provided', sub {
+		 my ($ref) = @_;
+		 substr($$ref, 0, 0) = 'if';  # inject 'if' at beginning of parse buffer
+	 };
  }
  
  sub unimport {
-     # lexically disable keyword again
-     Keyword::Pluggable::undefine 'provided';
+	 # lexically disable keyword again
+	 Keyword::Pluggable::undefine 'provided';
  }
 
  'ok'
@@ -112,14 +112,14 @@ only happens afterwards. This means that e.g. the code in the L</SYNOPSIS>
 actually does this:
 
   provided ($foo > 2) {
-    ...
+	...
   }
 
   # expands to
 
   ; if
   ($foo > 2) {
-    ...
+	...
   }
 
 The C<;> represents a no-op statement, the C<if> was injected by the Perl code,
