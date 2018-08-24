@@ -111,12 +111,13 @@ WARNINGS_ENABLE
  #endif
 #endif
 
+static HV * global_kw = NULL;
 
 static int (*next_keyword_plugin)(pTHX_ char *, STRLEN, OP **);
 
 static SV *kw_handler(pTHX_ const char *kw_ptr, STRLEN kw_len, int * is_expr) {
 	HV *hints;
-	SV **psv, *sv, *sv2;
+	SV **psv, *sv, *sv2 = NULL;
 	AV *av;
 	I32 kw_xlen;
 
@@ -130,25 +131,20 @@ static SV *kw_handler(pTHX_ const char *kw_ptr, STRLEN kw_len, int * is_expr) {
 	if (kw_len > (STRLEN)I32_MAX) {
 		return NULL;
 	}
-
-	if (!(hints = GvHV(PL_hintgv))) {
-		return NULL;
-	}
-
-	if (!(psv = hv_fetchs(hints, HINTK_KEYWORDS, 0))) {
-		return NULL;
-	}
-
-	sv = *psv;
-	if (!(SvROK(sv) && (sv2 = SvRV(sv), SvTYPE(sv2) == SVt_PVHV))) {
-		croak("%s: internal error: $^H{'%s'} not a hashref: %"SVf, MY_PKG, HINTK_KEYWORDS, SVfARG(sv));
-	}
-
 	kw_xlen = kw_len;
 	if (lex_bufutf8()) {
 		kw_xlen = -kw_xlen;
 	}
-	if (!(psv = hv_fetch((HV *)sv2, kw_ptr, kw_xlen, 0))) {
+
+	if ((hints = GvHV(PL_hintgv)) && (psv = hv_fetchs(hints, HINTK_KEYWORDS, 0))) {
+		sv = *psv;
+		if (!(SvROK(sv) && (sv2 = SvRV(sv), SvTYPE(sv2) == SVt_PVHV))) {
+			croak("%s: internal error: $^H{'%s'} not a hashref: %"SVf, MY_PKG, HINTK_KEYWORDS, SVfARG(sv));
+		}
+	} else {
+		sv2 = (SV*) global_kw;
+	}
+	if (!sv2 || !(psv = hv_fetch((HV *)sv2, kw_ptr, kw_xlen, 0))) {
 		return NULL;
 	}
 
@@ -165,7 +161,7 @@ static SV *kw_handler(pTHX_ const char *kw_ptr, STRLEN kw_len, int * is_expr) {
 		croak("%s: internal error: $^H{'%s'}{'%.*s'} bad item #0: %"SVf, MY_PKG, HINTK_KEYWORDS, (int)kw_len, kw_ptr, SVfARG(sv));
 	}
 	sv2 = *psv;
-	
+
 	if ( !( psv = av_fetch(av, 1, 0))) {
 		croak("%s: internal error: $^H{'%s'}{'%.*s'} bad item #1: %"SVf, MY_PKG, HINTK_KEYWORDS, (int)kw_len, kw_ptr, SVfARG(sv));
 	}
@@ -279,6 +275,7 @@ static void my_boot(pTHX) {
 
 	next_keyword_plugin = PL_keyword_plugin;
 	PL_keyword_plugin = my_keyword_plugin;
+	global_kw = newHV();
 }
 
 WARNINGS_RESET
@@ -288,3 +285,26 @@ PROTOTYPES: ENABLE
 
 BOOT:
 	my_boot(aTHX);
+
+
+void define_global (char *kw, SV *entry)
+	PPCODE:
+{
+	if ( !global_kw ) return;
+	hv_store( global_kw, kw, strlen(kw), newSVsv(entry), 0);
+}
+
+void undefine_global (char *kw)
+	PPCODE:
+{
+	if ( !global_kw ) return;
+	hv_delete( global_kw, kw, strlen(kw), G_DISCARD);
+}
+
+void cleanup_global ()
+	PPCODE:
+{
+	sv_free(( SV *) global_kw);
+	global_kw = NULL;
+}
+

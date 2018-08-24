@@ -13,23 +13,35 @@ BEGIN {
 }
 
 sub define {
-	my ($kw, $sub, $expression) = @_;
+	my ($kw, $sub, $expression, $global) = @_;
 	$kw =~ /^\p{XIDS}\p{XIDC}*\z/ or croak "'$kw' doesn't look like an identifier";
 	ref($sub) eq 'CODE' or croak "'$sub' doesn't look like a coderef";
 
-	my %keywords = %{$^H{+HINTK_KEYWORDS} // {}};
-	$keywords{$kw} = [ $sub, $expression ? 1 : 0 ];
-	$^H{+HINTK_KEYWORDS} = \%keywords;
+	my $entry = [ $sub, !!$expression ];
+	if ( $global ) {
+		define_global($kw, $entry);
+	} else {
+		my %keywords = %{$^H{+HINTK_KEYWORDS} // {}};
+		$keywords{$kw} = $entry;
+		$^H{+HINTK_KEYWORDS} = \%keywords;
+	}
 }
 
 sub undefine {
-	my ($kw) = @_;
+	my ($kw, $global) = @_;
 	$kw =~ /^\p{XIDS}\p{XIDC}*\z/ or croak "'$kw' doesn't look like an identifier";
 
-	my %keywords = %{$^H{+HINTK_KEYWORDS} // {}};
-	delete $keywords{$kw};
-	$^H{+HINTK_KEYWORDS} = \%keywords;
+
+	if ( $global ) {
+		undefine_global($kw);
+	} else {
+		my %keywords = %{$^H{+HINTK_KEYWORDS} // {}};
+		delete $keywords{$kw};
+		$^H{+HINTK_KEYWORDS} = \%keywords;
+	}
 }
+
+END { cleanup_global() }
 
 'ok'
 
@@ -81,23 +93,24 @@ that's currently being compiled.
 
 =over
 
-=item C<Keyword::Pluggable::define>
+=item C<Keyword::Pluggable::define> $keyword, $coderef, $is_expression, $is_global
 
-Takes three arguments, the name of a keyword, a coderef, and a boolean flag if
-the result of the keyword handler is an expression. Injects the keyword
-in the lexical scope currently being compiled. For every occurrence of the
-keyword, your coderef will be called with one argument: A reference to a scalar
-holding the rest of the source code (following the keyword).
+Takes four arguments, the name of a keyword, a coderef, a boolean flag if the
+result of the keyword handler is an expression, and global flag. Injects the
+keyword in either the lexical or global scope currently being compiled. For
+every occurrence of the keyword, your coderef will be called with one argument:
+A reference to a scalar holding the rest of the source code (following the
+keyword).
 
 You can modify this scalar in any way you like and after your coderef returns,
 perl will continue parsing from that scalar as if its contents had been the
 real source code in the first place.
 
-=item C<Keyword::Pluggable::undefine>
+=item C<Keyword::Pluggable::undefine> $keyword, $is_global
 
-Takes one argument, the name of a keyword. Disables that keyword in the lexical
-scope that's currently being compiled. You can call this from your C<unimport>
-method to make the C<no Foo;> syntax work.
+Takes two argument, the name of a keyword, and the global flag. Disables that
+keyword either in the lexical or global scope that's currently being compiled. You can call this
+from your C<unimport> method to make the C<no Foo;> syntax work.
 
 =back
 
