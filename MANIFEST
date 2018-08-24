@@ -5,6 +5,7 @@ MANIFEST
 Pluggable.xs
 t/00-load.t
 t/basic.t
+t/global.t
 t/eval.t
 t/lineno.t
 xt/pod.t
