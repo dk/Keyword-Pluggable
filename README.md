@@ -13,7 +13,7 @@ Keyword::Pluggable - define new keywords in pure Perl
         Keyword::Pluggable::define 
             keyword => 'provided', 
             package => scalar(caller),
-            handler => sub {
+            code    => sub {
                my ($ref) = @_;
                substr($$ref, 0, 0) = 'if';  # inject 'if' at beginning of parse buffer
             }
@@ -47,15 +47,11 @@ that's currently being compiled. The scope can be lexical, packaged, and global.
 
         The keyword is injected in the scope currently being compiled
 
-    - handler
+    - code (string or coderef)
 
-        For every occurrence of the keyword, your coderef will be called with one argument:
-        A reference to a scalar holding the rest of the source code (following the
-        keyword).
-
-        You can modify this scalar in any way you like and after your coderef returns,
-        perl will continue parsing from that scalar as if its contents had been the
-        real source code in the first place.
+        For every occurrence of the keyword, your coderef will be called and its result
+        will be injected into perl's parse buffer, so perl will continue parsing as if
+        its contents had been the real source code in the first place. 
 
     - expression
 

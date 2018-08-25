@@ -10,14 +10,14 @@ BEGIN {
 
         Keyword::Pluggable::define 
 		keyword    => 'peek',
-		handler    => sub { substr ${$_[0]}, 0, 0, "ok 1, 'synthetic test 1';" },
+		code       => sub { "ok 1, 'synthetic test 1';" },
 		expression => 0,
 		package    => 'Bar',
 	;
 
         Keyword::Pluggable::define 
 		keyword    => 'poke', 
-		handler    => sub { substr ${$_[0]}, 0, 0, "ok 2, 'synthetic test 2';"; },
+		code       => "ok 2, 'synthetic test 2';",
 		expression => 1,
 		package    => 'Bar',
 	;

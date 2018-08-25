@@ -13,7 +13,7 @@ use Test::More;
     sub import {
         Keyword::Pluggable::define(
 	    keyword => 'class',
-	    handler => sub { substr ${$_[0]}, 0, 0, "package" },
+	    code    => "package",
         );
     }
 

@@ -12,13 +12,13 @@ use Test::More tests => 4;
     sub import {
         Keyword::Pluggable::define 
 		keyword    => 'peek',
-		handler    => sub { substr ${$_[0]}, 0, 0, "ok 1, 'synthetic test 1';" },
+		code       => "ok 1, 'synthetic test 1';",
 		expression => 0,
 	;
 
         Keyword::Pluggable::define 
 		keyword    => 'poke', 
-		handler    => sub { substr ${$_[0]}, 0, 0, "ok 2, 'synthetic test 2';"; },
+		code       => sub { "ok 2, 'synthetic test 2';" },
 		expression => 1,
 	;
     }

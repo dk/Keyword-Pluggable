@@ -8,17 +8,22 @@ use Carp qw(croak);
 
 use XSLoader;
 BEGIN {
-	our $VERSION = '1.00';
+	our $VERSION = '1.01';
 	XSLoader::load __PACKAGE__, $VERSION;
 }
 
 sub define {
 	my %p = @_;
-	my ($kw, $sub, $expression, $global, $package) = @p{qw(keyword handler expression global package)};
+	my ($kw, $sub, $expression, $global, $package) = @p{qw(keyword code expression global package)};
 	$kw =~ /^\p{XIDS}\p{XIDC}*\z/ or croak "'$kw' doesn't look like an identifier";
-	ref($sub) eq 'CODE' or croak "'$sub' doesn't look like a coderef";
+	defined($sub) or croak "'code' is not defined";
 
-	my $entry = [ $sub, !!$expression ];
+	my $xsub = (ref($sub) eq 'CODE') ? 
+		sub { substr ${$_[0]}, 0, 0, $sub->() } :
+		sub { substr ${$_[0]}, 0, 0, $sub };
+
+	my $entry = [ $xsub, !!$expression ];
+
 	if ( defined $package) {
 		no strict 'refs';
 		my $keywords = \%{$package . '::/keywords' };
@@ -75,7 +80,7 @@ Keyword::Pluggable - define new keywords in pure Perl
      Keyword::Pluggable::define 
 	 keyword => 'provided', 
 	 package => scalar(caller),
-	 handler => sub {
+	 code    => sub {
             my ($ref) = @_;
             substr($$ref, 0, 0) = 'if';  # inject 'if' at beginning of parse buffer
          }
@@ -114,15 +119,11 @@ that's currently being compiled. The scope can be lexical, packaged, and global.
 
 The keyword is injected in the scope currently being compiled
 
-=item handler
+=item code (string or coderef)
 
-For every occurrence of the keyword, your coderef will be called with one argument:
-A reference to a scalar holding the rest of the source code (following the
-keyword).
-
-You can modify this scalar in any way you like and after your coderef returns,
-perl will continue parsing from that scalar as if its contents had been the
-real source code in the first place.
+For every occurrence of the keyword, your coderef will be called and its result
+will be injected into perl's parse buffer, so perl will continue parsing as if
+its contents had been the real source code in the first place. 
 
 =item expression
 

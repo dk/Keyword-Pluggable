@@ -8,10 +8,7 @@ BEGIN {
     package Some::Module;
     use Keyword::Pluggable;
     sub import {
-        Keyword::Pluggable::define keyword => 'provided', handler => sub {
-            my ($ref) = @_;
-            substr($$ref, 0, 0) = 'if';
-        };
+        Keyword::Pluggable::define keyword => 'provided', code => 'if';
     }
     sub unimport {
         Keyword::Pluggable::undefine keyword => 'provided';
@@ -22,7 +19,7 @@ BEGIN {
 use Some::Module;
 
 provided (1) {
-    is(__LINE__, 25);
+    is(__LINE__, 22);
 }
 
 #line 1
