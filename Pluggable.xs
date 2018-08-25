@@ -96,7 +96,8 @@ WARNINGS_ENABLE
 
 #define MY_PKG "Keyword::Pluggable"
 
-#define HINTK_KEYWORDS MY_PKG "/keywords"
+#define KEYWORDS "/keywords"
+#define HINTK_KEYWORDS MY_PKG KEYWORDS
 
 
 #ifndef PL_rsfp_filters
@@ -141,6 +142,11 @@ static SV *kw_handler(pTHX_ const char *kw_ptr, STRLEN kw_len, int * is_expr) {
 		if (!(SvROK(sv) && (sv2 = SvRV(sv), SvTYPE(sv2) == SVt_PVHV))) {
 			croak("%s: internal error: $^H{'%s'} not a hashref: %"SVf, MY_PKG, HINTK_KEYWORDS, SVfARG(sv));
 		}
+	} else if (PL_curstash && (psv = hv_fetchs(PL_curstash, KEYWORDS, 0))) {
+		sv = *psv;
+		if (SvTYPE(sv) != SVt_PVGV) 
+			croak("%s: internal error: %s{'%s'} not a stash: %"SVf, MY_PKG, HvNAME(PL_curstash), KEYWORDS, SVfARG(sv));
+		sv2 = (SV*) GvHV((GV*) sv);
 	} else {
 		sv2 = (SV*) global_kw;
 	}
@@ -255,13 +261,13 @@ static int my_keyword_plugin(pTHX_ char *keyword_ptr, STRLEN keyword_len, OP **o
 
 	if ((cb = kw_handler(aTHX_ keyword_ptr, keyword_len, &is_expr))) {
 		total_recall(aTHX_ cb);
-	if ( is_expr ) {
+		if ( is_expr ) {
 			*op_ptr = parse_fullexpr(0);
 			return KEYWORD_PLUGIN_EXPR;
-	} else {
+		} else {
 			*op_ptr = newOP(OP_NULL, 0);
 			return KEYWORD_PLUGIN_STMT;
-	}
+		}
 	}
 
 	return next_keyword_plugin(aTHX_ keyword_ptr, keyword_len, op_ptr);
@@ -301,7 +307,7 @@ void undefine_global (char *kw)
 	hv_delete( global_kw, kw, strlen(kw), G_DISCARD);
 }
 
-void cleanup_global ()
+void cleanup()
 	PPCODE:
 {
 	sv_free(( SV *) global_kw);

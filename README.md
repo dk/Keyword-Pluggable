@@ -38,23 +38,24 @@ that's currently being compiled.
 
 ## Functions
 
-- `Keyword::Pluggable::define`
+- `Keyword::Pluggable::define` $keyword, $coderef, $is\_expression, $is\_global
 
-    Takes three arguments, the name of a keyword, a coderef, and a boolean flag if
-    the result of the keyword handler is an expression. Injects the keyword
-    in the lexical scope currently being compiled. For every occurrence of the
-    keyword, your coderef will be called with one argument: A reference to a scalar
-    holding the rest of the source code (following the keyword).
+    Takes four arguments, the name of a keyword, a coderef, a boolean flag if the
+    result of the keyword handler is an expression, and global flag. Injects the
+    keyword in either the lexical or global scope currently being compiled. For
+    every occurrence of the keyword, your coderef will be called with one argument:
+    A reference to a scalar holding the rest of the source code (following the
+    keyword).
 
     You can modify this scalar in any way you like and after your coderef returns,
     perl will continue parsing from that scalar as if its contents had been the
     real source code in the first place.
 
-- `Keyword::Pluggable::undefine`
+- `Keyword::Pluggable::undefine` $keyword, $is\_global
 
-    Takes one argument, the name of a keyword. Disables that keyword in the lexical
-    scope that's currently being compiled. You can call this from your `unimport`
-    method to make the `no Foo;` syntax work.
+    Takes two argument, the name of a keyword, and the global flag. Disables that
+    keyword either in the lexical or global scope that's currently being compiled. You can call this
+    from your `unimport` method to make the `no Foo;` syntax work.
 
 # BUGS AND LIMITATIONS
 

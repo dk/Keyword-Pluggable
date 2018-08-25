@@ -13,12 +13,16 @@ BEGIN {
 }
 
 sub define {
-	my ($kw, $sub, $expression, $global) = @_;
+	my ($kw, $sub, $expression, $global, $package) = @_;
 	$kw =~ /^\p{XIDS}\p{XIDC}*\z/ or croak "'$kw' doesn't look like an identifier";
 	ref($sub) eq 'CODE' or croak "'$sub' doesn't look like a coderef";
 
 	my $entry = [ $sub, !!$expression ];
-	if ( $global ) {
+	if ( defined $package) {
+		no strict 'refs';
+		my $keywords = \%{$package . '::/keywords' };
+		$keywords->{$kw} = $entry;
+	} elsif ( $global ) {
 		define_global($kw, $entry);
 	} else {
 		my %keywords = %{$^H{+HINTK_KEYWORDS} // {}};
@@ -28,11 +32,14 @@ sub define {
 }
 
 sub undefine {
-	my ($kw, $global) = @_;
+	my ($kw, $global, $package) = @_;
 	$kw =~ /^\p{XIDS}\p{XIDC}*\z/ or croak "'$kw' doesn't look like an identifier";
 
-
-	if ( $global ) {
+	if ( defined $package ) {
+		no strict 'refs';
+		my $keywords = \%{$package . '::/keywords' };
+		delete $keywords->{$kw};
+	} elsif ( $global ) {
 		undefine_global($kw);
 	} else {
 		my %keywords = %{$^H{+HINTK_KEYWORDS} // {}};
@@ -41,7 +48,7 @@ sub undefine {
 	}
 }
 
-END { cleanup_global() }
+END { cleanup() }
 
 'ok'
 
