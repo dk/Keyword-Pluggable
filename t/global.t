@@ -2,8 +2,6 @@
 use warnings FATAL => 'all';
 use strict;
 
-use Test::More tests => 4;
-
 BEGIN {
     package Foo;
 
@@ -19,6 +17,7 @@ BEGIN {
 
 {
 	package Bar;
+	use Test::More tests => 4;
 	peek
 	ok 1, "natural test 1";
 	poke
