@@ -8,13 +8,13 @@ BEGIN {
     package Some::Module;
     use Keyword::Pluggable;
     sub import {
-        Keyword::Pluggable::define 'provided', sub {
+        Keyword::Pluggable::define keyword => 'provided', handler => sub {
             my ($ref) = @_;
             substr($$ref, 0, 0) = 'if';
         };
     }
     sub unimport {
-        Keyword::Pluggable::undefine 'provided';
+        Keyword::Pluggable::undefine keyword => 'provided';
     }
     $INC{'Some/Module.pm'} = __FILE__;
 };

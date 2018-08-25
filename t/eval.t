@@ -11,13 +11,14 @@ use Test::More;
     use Keyword::Pluggable;
 
     sub import {
-        Keyword::Pluggable::define class => sub {
-            substr ${$_[0]}, 0, 0, "package";
-        };
+        Keyword::Pluggable::define(
+	    keyword => 'class',
+	    handler => sub { substr ${$_[0]}, 0, 0, "package" },
+        );
     }
 
     sub unimport {
-        Keyword::Pluggable::undefine 'peek';
+        Keyword::Pluggable::undefine(keyword => 'peek');
     }
 
     BEGIN { $INC{"Foo.pm"} = 1; }

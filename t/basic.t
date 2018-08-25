@@ -10,17 +10,22 @@ use Test::More tests => 4;
     use Keyword::Pluggable;
 
     sub import {
-        Keyword::Pluggable::define peek => sub {
-            substr ${$_[0]}, 0, 0, "ok 1, 'synthetic test 1';";
-        };
-        Keyword::Pluggable::define poke => sub {
-            substr ${$_[0]}, 0, 0, "ok 2, 'synthetic test 2';";
-        }, 1;
+        Keyword::Pluggable::define 
+		keyword    => 'peek',
+		handler    => sub { substr ${$_[0]}, 0, 0, "ok 1, 'synthetic test 1';" },
+		expression => 0,
+	;
+
+        Keyword::Pluggable::define 
+		keyword    => 'poke', 
+		handler    => sub { substr ${$_[0]}, 0, 0, "ok 2, 'synthetic test 2';"; },
+		expression => 1,
+	;
     }
 
     sub unimport {
-        Keyword::Pluggable::undefine 'peek';
-        Keyword::Pluggable::undefine 'poke';
+        Keyword::Pluggable::undefine keyword => 'peek';
+        Keyword::Pluggable::undefine keyword => 'poke';
     }
 
     BEGIN { $INC{"Foo.pm"} = 1; }

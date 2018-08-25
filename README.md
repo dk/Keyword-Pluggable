@@ -9,16 +9,20 @@ Keyword::Pluggable - define new keywords in pure Perl
     use Keyword::Pluggable;
     
     sub import {
-            # create keyword 'provided', expand it to 'if' at parse time
-            Keyword::Pluggable::define 'provided', sub {
-                    my ($ref) = @_;
-                    substr($$ref, 0, 0) = 'if';  # inject 'if' at beginning of parse buffer
-            };
+        # create keyword 'provided', expand it to 'if' at parse time
+        Keyword::Pluggable::define 
+            keyword => 'provided', 
+            package => scalar(caller),
+            handler => sub {
+               my ($ref) = @_;
+               substr($$ref, 0, 0) = 'if';  # inject 'if' at beginning of parse buffer
+            }
+        ;
     }
     
     sub unimport {
-            # lexically disable keyword again
-            Keyword::Pluggable::undefine 'provided';
+       # disable keyword again
+       Keyword::Pluggable::undefine keyword => 'provided', package => scalar(caller);
     }
 
     'ok'
@@ -27,35 +31,50 @@ Keyword::Pluggable - define new keywords in pure Perl
 
 Warning: This module is still new and experimental. The API may change in
 future versions. The code may be buggy. Also, this module is a fork from
-`Keyword::Simple`, that somehow got stalled. If its author accepts pull requests,
-then it will probably be best to use it instead.
+`Keyword::Simple`, that somehow got stalled. If its author accepts pull
+requests, then it will probably be best to use it instead.
 
 This module lets you implement new keywords in pure Perl. To do this, you need
 to write a module and call
 [`Keyword::Pluggable::define`](#keyword-pluggable-define) in your `import`
-method. Any keywords defined this way will be available in the lexical scope
-that's currently being compiled.
+method. Any keywords defined this way will be available in the scope
+that's currently being compiled. The scope can be lexical, packaged, and global.
 
 ## Functions
 
-- `Keyword::Pluggable::define` $keyword, $coderef, $is\_expression, $is\_global
+- `Keyword::Pluggable::define %options`
+    - keyword
 
-    Takes four arguments, the name of a keyword, a coderef, a boolean flag if the
-    result of the keyword handler is an expression, and global flag. Injects the
-    keyword in either the lexical or global scope currently being compiled. For
-    every occurrence of the keyword, your coderef will be called with one argument:
-    A reference to a scalar holding the rest of the source code (following the
-    keyword).
+        The keyword is injected in the scope currently being compiled
 
-    You can modify this scalar in any way you like and after your coderef returns,
-    perl will continue parsing from that scalar as if its contents had been the
-    real source code in the first place.
+    - handler
 
-- `Keyword::Pluggable::undefine` $keyword, $is\_global
+        For every occurrence of the keyword, your coderef will be called with one argument:
+        A reference to a scalar holding the rest of the source code (following the
+        keyword).
 
-    Takes two argument, the name of a keyword, and the global flag. Disables that
-    keyword either in the lexical or global scope that's currently being compiled. You can call this
-    from your `unimport` method to make the `no Foo;` syntax work.
+        You can modify this scalar in any way you like and after your coderef returns,
+        perl will continue parsing from that scalar as if its contents had been the
+        real source code in the first place.
+
+    - expression
+
+        Boolean flag; if true then the perl parser will treat new code as expression,
+        otherwise as a statement
+
+    - global
+
+        Boolean flag; if set, then the scope is global, otherwise it is lexical or packaged
+
+    - package
+
+        If set, the scope will be limited to that package, otherwise it will be lexical
+- `Keyword::Pluggable::undefine %options`
+
+    Allows options: `keyword`, `global`, `package` (see above).
+
+    Disables the keyword in the given scope. You can call this from your
+    `unimport` method to make the `no Foo;` syntax work.
 
 # BUGS AND LIMITATIONS
 
@@ -92,6 +111,7 @@ There are barely any tests.
 # AUTHOR
 
 Lukas Mai, `<l.mai at web.de>`
+
 Dmitry Karasik , `<dmitry at karasik.eu.org`
 
 # COPYRIGHT & LICENSE

@@ -7,12 +7,19 @@ BEGIN {
 
     use Keyword::Pluggable;
 
-    Keyword::Pluggable::define peek => sub {
-        substr ${$_[0]}, 0, 0, "ok 1, 'synthetic test 1';";
-    }, 0, 1;
-    Keyword::Pluggable::define poke => sub {
-        substr ${$_[0]}, 0, 0, "ok 2, 'synthetic test 2';";
-    }, 1, 1;
+        Keyword::Pluggable::define 
+		keyword    => 'peek',
+		handler    => sub { substr ${$_[0]}, 0, 0, "ok 1, 'synthetic test 1';" },
+		expression => 0,
+		global     => 1,
+	;
+
+        Keyword::Pluggable::define 
+		keyword    => 'poke', 
+		handler    => sub { substr ${$_[0]}, 0, 0, "ok 2, 'synthetic test 2';"; },
+		expression => 1,
+		global     => 1,
+	;
 }
 
 {

@@ -13,7 +13,8 @@ BEGIN {
 }
 
 sub define {
-	my ($kw, $sub, $expression, $global, $package) = @_;
+	my %p = @_;
+	my ($kw, $sub, $expression, $global, $package) = @p{qw(keyword handler expression global package)};
 	$kw =~ /^\p{XIDS}\p{XIDC}*\z/ or croak "'$kw' doesn't look like an identifier";
 	ref($sub) eq 'CODE' or croak "'$sub' doesn't look like a coderef";
 
@@ -32,7 +33,8 @@ sub define {
 }
 
 sub undefine {
-	my ($kw, $global, $package) = @_;
+	my %p = @_;
+	my ($kw, $global, $package) = @p{qw(keyword global package)};
 	$kw =~ /^\p{XIDS}\p{XIDC}*\z/ or croak "'$kw' doesn't look like an identifier";
 
 	if ( defined $package ) {
@@ -69,16 +71,20 @@ Keyword::Pluggable - define new keywords in pure Perl
  use Keyword::Pluggable;
  
  sub import {
-	 # create keyword 'provided', expand it to 'if' at parse time
-	 Keyword::Pluggable::define 'provided', sub {
-		 my ($ref) = @_;
-		 substr($$ref, 0, 0) = 'if';  # inject 'if' at beginning of parse buffer
-	 };
+     # create keyword 'provided', expand it to 'if' at parse time
+     Keyword::Pluggable::define 
+	 keyword => 'provided', 
+	 package => scalar(caller),
+	 handler => sub {
+            my ($ref) = @_;
+            substr($$ref, 0, 0) = 'if';  # inject 'if' at beginning of parse buffer
+         }
+     ;
  }
  
  sub unimport {
-	 # lexically disable keyword again
-	 Keyword::Pluggable::undefine 'provided';
+    # disable keyword again
+    Keyword::Pluggable::undefine keyword => 'provided', package => scalar(caller);
  }
 
  'ok'
@@ -87,25 +93,30 @@ Keyword::Pluggable - define new keywords in pure Perl
 
 Warning: This module is still new and experimental. The API may change in
 future versions. The code may be buggy. Also, this module is a fork from
-C<Keyword::Simple>, that somehow got stalled. If its author accepts pull requests,
-then it will probably be best to use it instead.
+C<Keyword::Simple>, that somehow got stalled. If its author accepts pull
+requests, then it will probably be best to use it instead.
 
 This module lets you implement new keywords in pure Perl. To do this, you need
 to write a module and call
 L<C<Keyword::Pluggable::define>|/Keyword::Pluggable::define> in your C<import>
-method. Any keywords defined this way will be available in the lexical scope
-that's currently being compiled.
+method. Any keywords defined this way will be available in the scope
+that's currently being compiled. The scope can be lexical, packaged, and global.
 
 =head2 Functions
 
 =over
 
-=item C<Keyword::Pluggable::define> $keyword, $coderef, $is_expression, $is_global
+=item C<Keyword::Pluggable::define %options>
 
-Takes four arguments, the name of a keyword, a coderef, a boolean flag if the
-result of the keyword handler is an expression, and global flag. Injects the
-keyword in either the lexical or global scope currently being compiled. For
-every occurrence of the keyword, your coderef will be called with one argument:
+=over
+
+=item keyword
+
+The keyword is injected in the scope currently being compiled
+
+=item handler
+
+For every occurrence of the keyword, your coderef will be called with one argument:
 A reference to a scalar holding the rest of the source code (following the
 keyword).
 
@@ -113,11 +124,27 @@ You can modify this scalar in any way you like and after your coderef returns,
 perl will continue parsing from that scalar as if its contents had been the
 real source code in the first place.
 
-=item C<Keyword::Pluggable::undefine> $keyword, $is_global
+=item expression
 
-Takes two argument, the name of a keyword, and the global flag. Disables that
-keyword either in the lexical or global scope that's currently being compiled. You can call this
-from your C<unimport> method to make the C<no Foo;> syntax work.
+Boolean flag; if true then the perl parser will treat new code as expression,
+otherwise as a statement
+
+=item global
+
+Boolean flag; if set, then the scope is global, otherwise it is lexical or packaged
+
+=item package
+
+If set, the scope will be limited to that package, otherwise it will be lexical
+
+=back
+
+=item C<Keyword::Pluggable::undefine %options>
+
+Allows options: C<keyword>, C<global>, C<package> (see above).
+
+Disables the keyword in the given scope. You can call this from your
+C<unimport> method to make the C<no Foo;> syntax work.
 
 =back
 
@@ -156,6 +183,7 @@ There are barely any tests.
 =head1 AUTHOR
 
 Lukas Mai, C<< <l.mai at web.de> >>
+
 Dmitry Karasik , C<< <dmitry at karasik.eu.org >>
 
 =head1 COPYRIGHT & LICENSE
