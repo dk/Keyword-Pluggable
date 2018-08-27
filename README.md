@@ -105,7 +105,7 @@ There are barely any tests.
 
 Lukas Mai, `<l.mai at web.de>`
 
-Dmitry Karasik , `<dmitry at karasik.eu.org`
+Dmitry Karasik , `<dmitry at karasik.eu.org>`
 
 # COPYRIGHT & LICENSE
 

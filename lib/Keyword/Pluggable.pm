@@ -182,7 +182,7 @@ There are barely any tests.
 
 Lukas Mai, C<< <l.mai at web.de> >>
 
-Dmitry Karasik , C<< <dmitry at karasik.eu.org >>
+Dmitry Karasik , C<< <dmitry at karasik.eu.org> >>
 
 =head1 COPYRIGHT & LICENSE
 
