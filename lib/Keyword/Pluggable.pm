@@ -80,10 +80,7 @@ Keyword::Pluggable - define new keywords in pure Perl
      Keyword::Pluggable::define 
 	 keyword => 'provided', 
 	 package => scalar(caller),
-	 code    => sub {
-            my ($ref) = @_;
-            substr($$ref, 0, 0) = 'if';  # inject 'if' at beginning of parse buffer
-         }
+	 code    => 'if',
      ;
  }
  
