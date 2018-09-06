@@ -5,18 +5,18 @@ Keyword::Pluggable - define new keywords in pure Perl
 # SYNOPSIS
 
     package Some::Module;
-    
+
     use Keyword::Pluggable;
-    
+
     sub import {
         # create keyword 'provided', expand it to 'if' at parse time
-        Keyword::Pluggable::define 
-            keyword => 'provided', 
+        Keyword::Pluggable::define
+            keyword => 'provided',
             package => scalar(caller),
             code    => 'if',
         ;
     }
-    
+
     sub unimport {
        # disable keyword again
        Keyword::Pluggable::undefine keyword => 'provided', package => scalar(caller);
@@ -48,7 +48,7 @@ that's currently being compiled. The scope can be lexical, packaged, and global.
 
         For every occurrence of the keyword, your coderef will be called and its result
         will be injected into perl's parse buffer, so perl will continue parsing as if
-        its contents had been the real source code in the first place. 
+        its contents had been the real source code in the first place.
 
     - expression
 
@@ -91,10 +91,9 @@ actually does this:
     }
 
 The `;` represents a no-op statement, the `if` was injected by the Perl code,
-and the rest of the file is unchanged.
-
-This also means your new keywords can only occur at the beginning of a
-statement, not embedded in an expression.
+and the rest of the file is unchanged. This also means your it can
+only occur at the beginning of a statement, not embedded in an expression.
+To be able to do that, use ` expression =` 1 > flag.
 
 Keywords in the replacement part of a `s//.../e` substitution aren't handled
 correctly and break parsing.
