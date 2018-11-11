@@ -8,7 +8,7 @@ use Carp qw(croak);
 
 use XSLoader;
 BEGIN {
-	our $VERSION = '1.01';
+	our $VERSION = '1.02';
 	XSLoader::load __PACKAGE__, $VERSION;
 }
 
@@ -19,7 +19,7 @@ sub define {
 	defined($sub) or croak "'code' is not defined";
 
 	my $xsub = (ref($sub) eq 'CODE') ?
-		sub { substr ${$_[0]}, 0, 0, $sub->() } :
+		sub { substr ${$_[0]}, 0, 0, $sub->(${$_[0]}) } :
 		sub { substr ${$_[0]}, 0, 0, $sub };
 
 	my $entry = [ $xsub, !!$expression ];
@@ -120,7 +120,9 @@ The keyword is injected in the scope currently being compiled
 
 For every occurrence of the keyword, your coderef will be called and its result
 will be injected into perl's parse buffer, so perl will continue parsing as if
-its contents had been the real source code in the first place.
+its contents had been the real source code in the first place. First paramater
+to the eventual coderef will be all code text following the keyword to be replaced,
+if examination is needed.
 
 =item expression
 
