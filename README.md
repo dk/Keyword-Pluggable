@@ -48,7 +48,9 @@ that's currently being compiled. The scope can be lexical, packaged, and global.
 
         For every occurrence of the keyword, your coderef will be called and its result
         will be injected into perl's parse buffer, so perl will continue parsing as if
-        its contents had been the real source code in the first place.
+        its contents had been the real source code in the first place. First paramater
+        to the eventual coderef will be all code text following the keyword to be replaced,
+        if examination is needed.
 
     - expression
 
