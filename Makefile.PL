@@ -7,8 +7,8 @@ sub MY::postamble
 return <<'POST'
 pure_all :: README.md
 
-README.md : lib/$(subst ::,/,$(NAME)).pm
-	pod2markdown < $< > $@.tmp && $(MV) -- $@.tmp $@
+README.md : lib/Keyword/Pluggable.pm
+	pod2markdown < lib/Keyword/Pluggable.pm > README.md
 POST
 }
 
