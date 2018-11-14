@@ -4,6 +4,7 @@ use ExtUtils::MakeMaker;
 
 sub MY::postamble
 {
+	return '' unless -d '.git';
 return <<'POST'
 pure_all :: README.md
 
@@ -19,7 +20,7 @@ WriteMakefile(
 	MIN_PERL_VERSION  => '5.14.0',
 	LICENSE           => 'artistic_2',
 	PREREQ_PM         => {
-		'Pod::Markdown' => 3.101,
+		(-d '.git') ? ('Pod::Markdown' => 3.101) : (),
 	},
 	META_MERGE        => {
 		resources => {
