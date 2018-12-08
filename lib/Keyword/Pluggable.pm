@@ -18,8 +18,7 @@ sub define {
 	$kw =~ /^\p{XIDS}\p{XIDC}*\z/ or croak "'$kw' doesn't look like an identifier";
 	defined($sub) or croak "'code' is not defined";
 
-	my $xsub = (ref($sub) eq 'CODE') ?
-		sub { substr ${$_[0]}, 0, 0, $sub->(${$_[0]}) } :
+	my $xsub = (ref($sub) eq 'CODE') ? $sub : 
 		sub { substr ${$_[0]}, 0, 0, $sub };
 
 	my $entry = [ $xsub, !!$expression ];
@@ -121,8 +120,8 @@ The keyword is injected in the scope currently being compiled
 For every occurrence of the keyword, your coderef will be called and its result
 will be injected into perl's parse buffer, so perl will continue parsing as if
 its contents had been the real source code in the first place. First paramater
-to the eventual coderef will be all code text following the keyword to be replaced,
-if examination is needed.
+to the eventual coderef will be all code textref following the keyword to be replaced,
+if examination and change is needed.
 
 =item expression
 
