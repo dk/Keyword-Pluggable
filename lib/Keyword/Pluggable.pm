@@ -171,7 +171,7 @@ actually does this:
 The C<;> represents a no-op statement, the C<if> was injected by the Perl code,
 and the rest of the file is unchanged. This also means your it can
 only occur at the beginning of a statement, not embedded in an expression.
-To be able to do that, use C<expression =E<gt> 1> flag.
+To be able to do that, use C<< expression => 1 >> flag.
 
 Keywords in the replacement part of a C<s//.../e> substitution aren't handled
 correctly and break parsing.
