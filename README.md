@@ -49,8 +49,8 @@ that's currently being compiled. The scope can be lexical, packaged, and global.
         For every occurrence of the keyword, your coderef will be called and its result
         will be injected into perl's parse buffer, so perl will continue parsing as if
         its contents had been the real source code in the first place. First paramater
-        to the eventual coderef will be all code text following the keyword to be replaced,
-        if examination is needed.
+        to the eventual coderef will be all code textref following the keyword to be replaced,
+        if examination and change is needed.
 
     - expression
 
@@ -95,7 +95,7 @@ actually does this:
 The `;` represents a no-op statement, the `if` was injected by the Perl code,
 and the rest of the file is unchanged. This also means your it can
 only occur at the beginning of a statement, not embedded in an expression.
-To be able to do that, use ` expression =` 1 > flag.
+To be able to do that, use `expression => 1` flag.
 
 Keywords in the replacement part of a `s//.../e` substitution aren't handled
 correctly and break parsing.
