@@ -8,7 +8,7 @@ BEGIN {
 		my $r = shift;
 		$$r =~ /\G\s*(\w+)/gcs or die "macro name expected";
 		my $name = $1;
-		die "macro '$name' is defined already" if $macros{$1};
+		die "macro '$name' is defined already" if $macros{$1}++;
 		$$r =~ /\G\s*\(\s*([^\)]*)\s*\)/gcs or die "macro parameters expected";
 		my @parmlist = split /\s*,\s*/, $1;
 		$$r =~ /\G\s+\{\s*([^\}]*)\s*\}/gcs or die "macro body expected";
