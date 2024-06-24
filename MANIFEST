@@ -9,5 +9,6 @@ t/global.t
 t/package.t
 t/eval.t
 t/lineno.t
+t/dynamic.t
 xt/pod.t
 examples/inline.pl
