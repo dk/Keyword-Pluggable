@@ -54,8 +54,13 @@ that's currently being compiled. The scope can be lexical, packaged, and global.
 
     - expression
 
-        Boolean flag; if true then the perl parser will treat new code as expression,
-        otherwise as a statement
+        String value; if `"statement"`, then the injected code will be parsed as a
+        statement.  If `"expression"`, if will be parsed as an expression.  If
+        `"dynamic"`, then `code` must be a coderef rather than a string, returning
+        a true value to indicate an expression or a false value to indicate a
+        statement.  (For backward compatibility, a false value for `expression` is
+        treated as `"statement"`, and any unrecognized value is treated as
+        `"expression"`.)
 
     - global
 
