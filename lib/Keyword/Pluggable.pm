@@ -8,7 +8,7 @@ use Carp qw(croak);
 
 use XSLoader;
 BEGIN {
-	our $VERSION = '1.04';
+	our $VERSION = '1.05';
 	XSLoader::load __PACKAGE__, $VERSION;
 }
 
@@ -201,10 +201,14 @@ Lukas Mai, C<< <l.mai at web.de> >>
 
 Dmitry Karasik , C<< <dmitry at karasik.eu.org> >>
 
+=head1 THANKS
+
+Paul Jarc
+
 =head1 COPYRIGHT & LICENSE
 
 Copyright (C) 2012, 2013 Lukas Mai.
-Copyright (C) 2018 Dmitry Karasik
+Copyright (C) 2018-2024 Dmitry Karasik
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of either: the GNU General Public License as published
